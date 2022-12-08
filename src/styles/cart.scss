@@ -1,0 +1,20 @@
+.table {
+  thead {
+    th {
+      color: var(--primary-color);
+    }
+  }
+  tr {
+    td {
+      color: var(--primary-color);
+      img {
+        width: 80px !important;
+        height: 80px !important;
+        object-fit: cover;
+      }
+      i {
+        cursor: pointer;
+      }
+    }
+  }
+}
