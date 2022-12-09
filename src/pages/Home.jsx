@@ -12,6 +12,7 @@ import Clock from "../components/UI/Clock";
 import heroImg from "../assets/images/hero-img.png";
 import products from "../assets/data/products";
 import counterImg from "../assets/images/counter-timer-img.png";
+import axios from "axios";
 
 const Home = () => {
   const [trendingProducts, setTrendingProducts] = useState([]);
@@ -22,32 +23,46 @@ const Home = () => {
   const year = new Date().getFullYear();
 
   useEffect(() => {
-    const filteredTrendingProducts = products.filter(
-      (item) => item.category === "chair"
-    );
-
-    const filteredBestSalesProducts = products.filter(
-      (item) => item.category === "sofa"
-    );
-
-    const filteredMobileProducts = products.filter(
-      (item) => item.category === "mobile"
-    );
-
-    const filteredWirelessProducts = products.filter(
-      (item) => item.category === "wireless"
-    );
-
-    const filteredPopularProducts = products.filter(
-      (item) => item.category === "watch"
-    );
-
-    setTrendingProducts(filteredTrendingProducts);
-    setBestSalesProducts(filteredBestSalesProducts);
-    setMobileProducts(filteredMobileProducts);
-    setWirelessProducts(filteredWirelessProducts);
-    setPopularProducts(filteredPopularProducts);
+    (async () => {
+      try {
+        const res = await axios("http://localhost:8080/api/product", {
+          params: { limit: 4 },
+        });
+        const { message, data } = res.data;
+        if (message === "Success") {
+          setTrendingProducts(data.items);
+        }
+      } catch (error) {}
+    })();
   }, []);
+
+  // useEffect(() => {
+  //   const filteredTrendingProducts = products.filter(
+  //     (item) => item.category === "chair"
+  //   );
+
+  //   const filteredBestSalesProducts = products.filter(
+  //     (item) => item.category === "sofa"
+  //   );
+
+  //   const filteredMobileProducts = products.filter(
+  //     (item) => item.category === "mobile"
+  //   );
+
+  //   const filteredWirelessProducts = products.filter(
+  //     (item) => item.category === "wireless"
+  //   );
+
+  //   const filteredPopularProducts = products.filter(
+  //     (item) => item.category === "watch"
+  //   );
+
+  //   setTrendingProducts(filteredTrendingProducts);
+  //   setBestSalesProducts(filteredBestSalesProducts);
+  //   setMobileProducts(filteredMobileProducts);
+  //   setWirelessProducts(filteredWirelessProducts);
+  //   setPopularProducts(filteredPopularProducts);
+  // }, []);
 
   return (
     <Helmet title={"Home"}>
@@ -93,7 +108,7 @@ const Home = () => {
         </Container>
       </section>
 
-      <section className="best__sales">
+      {/* <section className="best__sales">
         <Container>
           <Row>
             <Col lg="12" className="text-center ">
@@ -147,7 +162,7 @@ const Home = () => {
             <ProductsList data={popularProducts} />
           </Row>
         </Container>
-      </section>
+      </section> */}
     </Helmet>
   );
 };

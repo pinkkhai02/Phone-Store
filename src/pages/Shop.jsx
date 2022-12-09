@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import "../styles/shop.scss";
 
@@ -9,9 +9,11 @@ import { Container, Row, Col } from "reactstrap";
 import products from "../assets/data/products";
 
 import ProductsList from "../components/UI/ProductsList";
+import axios from "axios";
+import instance from "../config/configAxios";
 
 const Shop = () => {
-  const [productsData, setProductsData] = useState(products);
+  const [productsData, setProductsData] = useState([]);
 
   const handleFilter = (e) => {
     const filterValue = e.target.value;
@@ -56,6 +58,18 @@ const Shop = () => {
       setProductsData(filteredProducts);
     }
   };
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await axios.get("http://localhost:8080/api/product");
+        const { message, data } = res.data;
+        if (message === "Success") {
+          setProductsData(data.items);
+        }
+      } catch (error) {}
+    })();
+  }, []);
 
   const handleSearch = (e) => {
     const searchTerm = e.target.value;

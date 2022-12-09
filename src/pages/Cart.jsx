@@ -6,13 +6,17 @@ import CommonSection from "../components/UI/CommonSection";
 import { Container, Row, Col } from "reactstrap";
 
 import { motion } from "framer-motion";
-import { cartActions } from "../redux/slices/cartSlice";
+import { cartActions, cartSelector } from "../redux/slices/cartSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
+import { apiCallerWithToken } from "../config/configAxios";
+import { authSelector } from "../redux/slices/authSlice";
 
 const Cart = () => {
   const cartItems = useSelector((state) => state.cart.cartItems);
   const totalAmount = useSelector((state) => state.cart.totalAmount);
+
+  const { cart } = useSelector(cartSelector);
 
   return (
     <Helmet title="Cart">
@@ -22,7 +26,7 @@ const Cart = () => {
         <Container>
           <Row>
             <Col lg="9">
-              {cartItems.length === 0 ? (
+              {cart.items.length === 0 ? (
                 <h2 className="fs-4 text-center">No item added to the cart</h2>
               ) : (
                 <table className="table bordered">
@@ -33,9 +37,12 @@ const Cart = () => {
                     <th>Qty</th>
                     <th>Delete</th>
                   </thead>
-                  {cartItems.map((item, index) => (
+                  {cart?.items.map((item, index) => {
+                    return <Tr item={item} key={index} />;
+                  })}
+                  {/* {cartItems.map((item, index) => (
                     <Tr item={item} key={index} />
-                  ))}
+                  ))} */}
                   <tbody></tbody>
                 </table>
               )}
@@ -44,7 +51,15 @@ const Cart = () => {
               <div>
                 <h6 className="d-flex align-items-center justify-content-between">
                   Subtotal
-                  <span className="fs-4 fw-bold">${totalAmount}</span>
+                  <span className="fs-4 fw-bold">
+                    {cart
+                      ? cart.items.reduce(
+                          (p, c) => p + c.quantity * c.product?.price,
+                          0
+                        )
+                      : 0}
+                    đ
+                  </span>
                 </h6>
               </div>
               <p className="fs-6 mt-2">
@@ -68,16 +83,42 @@ const Cart = () => {
 
 const Tr = ({ item }) => {
   const dispatch = useDispatch();
+  const { accessToken } = useSelector(authSelector);
+  const deleteProduct = async () => {
+    try {
+      const res = await apiCallerWithToken(accessToken, dispatch).delete(
+        "cart/item/" + item.id
+      );
 
-  const deleteProduct = () => {
-    dispatch(cartActions.deleteItem(item.id));
+      const { message } = res.data;
+      if (message === "Success") {
+        dispatch(cartActions.deleteCartItem(item.id));
+      }
+    } catch (error) {}
   };
   return (
-    <tr>
+    <>
+      <tr>
+        <td>
+          <img src={item.product.thumbnail} alt="" />
+        </td>
+        <td>{item.product.name}</td>
+        <td>{item.product.price}đ</td>
+        <td>{item.quantity}</td>
+        <td>
+          <motion.i
+            whileTap={{ scale: 1.2 }}
+            onClick={deleteProduct}
+            className="ri-delete-bin-line"
+          ></motion.i>
+        </td>
+      </tr>
+
+      {/* <tr>
       <td>
-        <img src={item.imgUrl} alt="" />
+        <img src={item.thumbnail} alt="" />
       </td>
-      <td>{item.productName}</td>
+      <td>{item.name}</td>
       <td>${item.price}</td>
       <td>{item.quantity}px</td>
       <td>
@@ -87,7 +128,8 @@ const Tr = ({ item }) => {
           className="ri-delete-bin-line"
         ></motion.i>
       </td>
-    </tr>
+    </tr> */}
+    </>
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../styles/product-details.scss";
 import { Container, Row, Col } from "reactstrap";
 import { useParams } from "react-router-dom";
@@ -6,50 +6,76 @@ import products from "../assets/data/products";
 import Helmet from "../components/Helmet.js/Helmet";
 import CommonSection from "../components/UI/CommonSection";
 import { motion } from "framer-motion";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { cartActions } from "../redux/slices/cartSlice";
 import { toast } from "react-toastify";
+import axios from "axios";
+import { authSelector } from "../redux/slices/authSlice";
+import { apiCallerWithToken } from "../config/configAxios";
 
 const ProductDetails = () => {
   const { tab, setTab } = useState("desc");
   const { id } = useParams();
   const dispatch = useDispatch();
-  const product = products.find((item) => item.id === id);
+  // const product = products.find((item) => item.id === id);
 
-  const {
-    imgUrl,
-    productName,
-    price,
-    avgRating,
-    reviews,
-    description,
-    shortDesc,
-  } = product;
+  // const {
+  //   imgUrl,
+  //   productName,
+  //   price,
+  //   avgRating,
+  //   reviews,
+  //   description,
+  //   shortDesc,
+  // } = product;
+  const [product, setProduct] = useState();
+  const { accessToken } = useSelector(authSelector);
 
-  const addToCart = () => {
-    dispatch(
-      cartActions.addItem({
-        id,
-        productName,
-        imgUrl: imgUrl,
-        price,
-      })
-    );
-    toast.success("Product added successfully");
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await axios("http://localhost:8080/api/product/" + id);
+        const { message, data } = res.data;
+        if (message === "Success") {
+          setProduct(data);
+        }
+      } catch (error) {}
+    })();
+  }, [id]);
+  console.log(product);
+
+  const addToCart = async () => {
+    try {
+      const res = await apiCallerWithToken(accessToken, dispatch).post(
+        "cart/item",
+        {
+          productId: product.id,
+          quantity: 1,
+        }
+      );
+      const { message, data } = res.data;
+      if (message === "Success") {
+        dispatch(cartActions.addToCart(data));
+        toast.success("Product added successfully");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
+
   return (
-    <Helmet title={productName}>
-      <CommonSection title={productName} />
+    <Helmet title={product?.name}>
+      <CommonSection title={product?.name} />
 
       <section className="pt-0">
         <Container>
           <Row>
             <Col lg="6">
-              <img src={imgUrl} alt="" />
+              <img src={product?.thumbnail} alt="" />
             </Col>
             <Col lg="6">
               <div className="product__details">
-                <h2>{productName}</h2>
+                <h2>{product?.name}</h2>
                 <div className="product__rating d-flex align-items-center gap-5 mb-3">
                   <div>
                     <span>
@@ -69,13 +95,13 @@ const ProductDetails = () => {
                     </span>
                   </div>
 
-                  <p>
+                  {/* <p>
                     (<span>{avgRating}</span> ratings)
-                  </p>
+                  </p> */}
                 </div>
 
-                <span className="product__price">${price}</span>
-                <p className="mt-3">{shortDesc}</p>
+                <span className="product__price">{product?.price}đ</span>
+                <p className="mt-3">{product?.description}</p>
 
                 <motion.button
                   whileTap={{ scale: 1.2 }}
@@ -104,11 +130,11 @@ const ProductDetails = () => {
                 className={`${tab === "rev" ? "active__tab" : ""}`}
                 onClick={() => setTab("rev")}
               >
-                Reviews ({reviews.length})
+                {/* Reviews ({reviews.length}) */}
               </h6>
             </div>
             <div className="tab__content mt-5">
-              <p>{description}</p>
+              <p>{product?.description}</p>
             </div>
           </Col>
         </Container>

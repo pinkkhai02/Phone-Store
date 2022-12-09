@@ -1,0 +1,26 @@
+.signup {
+  .auth__form {
+    background: var(--primary-color);
+    padding: 40px;
+    border-radius: 5px;
+    .form__group {
+      input {
+        border-radius: 5px;
+        padding: 5px;
+      }
+    }
+
+    p {
+      margin-top: 30px;
+      a {
+        color: rgba(255, 255, 255, 0.753);
+      }
+    }
+  }
+
+  .login__btn {
+    background: #fff;
+    color: var(--primary-color);
+    font-weight: 600;
+  }
+}
