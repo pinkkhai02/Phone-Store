@@ -91,11 +91,11 @@ const Shop = () => {
               <div className="filter__widget">
                 <select onChange={handleFilter}>
                   <option>Filter By Category</option>
-                  <option value="sofa">Sofa</option>
-                  <option value="mobile">Mobile</option>
-                  <option value="chair">Chair</option>
+                  <option value="iphone">Iphone</option>
+                  <option value="ipad">Ipad</option>
+                  <option value="mac">Mac</option>
                   <option value="watch">Watch</option>
-                  <option value="wireless">Wireless</option>
+                  <option value="ccessory">Accessory</option>
                 </select>
               </div>
             </Col>

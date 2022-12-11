@@ -31,6 +31,7 @@ const Home = () => {
         const { message, data } = res.data;
         if (message === "Success") {
           setTrendingProducts(data.items);
+          setBestSalesProducts(data.items);
         }
       } catch (error) {}
     })();
